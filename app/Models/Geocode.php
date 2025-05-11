@@ -9,6 +9,7 @@ class Geocode extends Model
 {
     protected $fillable = [
         'application',
+        'domain',
         'formatted_address',
         'language',
         'referrer',

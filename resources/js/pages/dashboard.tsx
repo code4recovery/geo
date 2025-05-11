@@ -15,14 +15,20 @@ const breadcrumbs: BreadcrumbItem[] = [
 type Geocode = {
     application: string;
     created_at: string;
+    domain: string;
     formatted_address: string | null;
     id: number;
     language: string;
-    referrer: string | null;
+    referrer: string;
     search: string;
 };
 
-export default function Dashboard({ geocodes }: { geocodes: Geocode[] }) {
+type Domain = {
+    domain: string;
+    total: number;
+};
+
+export default function Dashboard({ geocodes, domains }: { geocodes: Geocode[]; domains: Domain[] }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -35,7 +41,27 @@ export default function Dashboard({ geocodes }: { geocodes: Geocode[] }) {
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
                     </div>
                     <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
+                        <Table>
+                            <TableCaption>Request counts by domain</TableCaption>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Domain</TableHead>
+                                    <TableHead className="text-right">Total</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {domains.map(({ domain, total }) => (
+                                    <TableRow key={domain}>
+                                        <TableCell>
+                                            <a className="cursor-pointer hover:underline" href={`https://${domain}/`} target="_blank">
+                                                {domain}
+                                            </a>
+                                        </TableCell>
+                                        <TableCell className="text-right">{total}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
                     </div>
                 </div>
                 <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
@@ -55,11 +81,9 @@ export default function Dashboard({ geocodes }: { geocodes: Geocode[] }) {
                                 <TableRow key={geocode.id}>
                                     <TableCell>
                                         <span className="mr-2 rounded bg-indigo-500 px-2">{geocode.application}</span>
-                                        {geocode.referrer && (
-                                            <a className="hover:underline" href={geocode.referrer} target="_blank">
-                                                {geocode.referrer}
-                                            </a>
-                                        )}
+                                        <a className="cursor-pointer hover:underline" href={geocode.referrer} target="_blank">
+                                            {geocode.domain}
+                                        </a>
                                     </TableCell>
                                     <TableCell>{geocode.language}</TableCell>
                                     <TableCell>{geocode.search}</TableCell>

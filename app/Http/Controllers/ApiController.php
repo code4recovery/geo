@@ -14,6 +14,7 @@ class ApiController extends Controller
         $validator = Validator::make($request->all(), [
             'application' => 'string|required',
             'language' => 'string',
+            'referrer' => 'url|required',
             'search' => 'string|required',
         ]);
 
@@ -24,19 +25,14 @@ class ApiController extends Controller
             ], 422);
         }
 
-        $referrer = $region = $formatted_address = null;
+        $region = $formatted_address = null;
 
         // bias results by region 
-        if (request()->headers->has('referer')) {
-            $referrer = request()->headers->get('referer');
-            $url = parse_url($referrer);
-            if (!empty($url['host'])) {
-                $host_parts = explode('.', $url['host']);
-                $tld = $host_parts[count($host_parts) - 1];
-                if (in_array($tld, self::$countryTlds)) {
-                    $region = $tld;
-                }
-            }
+        $domain = parse_url($request->referrer, PHP_URL_HOST);
+        $domain_parts = explode('.', $domain);
+        $tld = end($domain_parts);
+        if (in_array($tld, self::$countryTlds)) {
+            $region = $tld;
         }
 
         // check database
@@ -53,7 +49,7 @@ class ApiController extends Controller
                 'request' => [
                     'address' => $request->address,
                     'language' => $request->language,
-                    'referrer' => $referrer,
+                    'referrer' => $request->referrer,
                     'region' => $region,
                 ],
                 ...$geocode->response,
@@ -75,7 +71,8 @@ class ApiController extends Controller
             'application' => $request->application,
             'formatted_address' => $formatted_address,
             'language' => $request->language,
-            'referrer' => $referrer,
+            'referrer' => $request->referrer,
+            'domain' => $domain,
             'region' => $region,
             'response' => $response,
             'search' => $request->search,
@@ -86,7 +83,7 @@ class ApiController extends Controller
             'request' => [
                 'address' => $request->address,
                 'language' => $request->language,
-                'referrer' => $referrer,
+                'referrer' => $request->referrer,
                 'region' => $region,
             ],
             ...$response,
