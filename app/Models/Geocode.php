@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Geocode extends Model
 {
@@ -20,5 +21,9 @@ class Geocode extends Model
         'response' => 'json',
     ];
 
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::parse($value)->diffForHumans();
+    }
 
 }
