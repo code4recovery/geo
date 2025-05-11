@@ -12,7 +12,17 @@ const breadcrumbs: BreadcrumbItem[] = [
     },
 ];
 
-export default function Dashboard({ geocodes }: { geocodes: any[] }) {
+type Geocode = {
+    application: string;
+    created_at: string;
+    formatted_address: string | null;
+    id: number;
+    language: string;
+    referrer: string | null;
+    search: string;
+};
+
+export default function Dashboard({ geocodes }: { geocodes: Geocode[] }) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -45,9 +55,11 @@ export default function Dashboard({ geocodes }: { geocodes: any[] }) {
                                 <TableRow key={geocode.id}>
                                     <TableCell>
                                         <span className="mr-2 rounded bg-indigo-500 px-2">{geocode.application}</span>
-                                        <a className="hover:underline" href={geocode.referrer} target="_blank">
-                                            {geocode.referrer}
-                                        </a>
+                                        {geocode.referrer && (
+                                            <a className="hover:underline" href={geocode.referrer} target="_blank">
+                                                {geocode.referrer}
+                                            </a>
+                                        )}
                                     </TableCell>
                                     <TableCell>{geocode.language}</TableCell>
                                     <TableCell>{geocode.search}</TableCell>
