@@ -52,7 +52,7 @@ class ApiController extends Controller
             return [
                 'type' => 'cache',
                 'request' => [
-                    'address' => $request->address,
+                    'search' => $request->search,
                     'language' => $request->language,
                     'referrer' => $request->referrer,
                     'region' => $region,
@@ -62,7 +62,7 @@ class ApiController extends Controller
         }
 
         $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query([
-            'address' => $request->search,
+            'search' => $request->search,
             'key' => env('GOOGLE_API_KEY'),
             'language' => $request->language,
             'region' => $region,
@@ -86,7 +86,7 @@ class ApiController extends Controller
         return [
             'type' => 'live',
             'request' => [
-                'address' => $request->address,
+                'search' => $request->search,
                 'language' => $request->language,
                 'referrer' => $request->referrer,
                 'region' => $region,

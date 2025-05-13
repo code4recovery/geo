@@ -11,7 +11,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        $geocodes = Geocode::select(['id', 'search', 'address', 'formatted_address', 'language', 'domain', 'referrer', 'created_at', 'application'])
+        $geocodes = Geocode::select(['id', 'search', 'formatted_address', 'language', 'domain', 'referrer', 'created_at', 'application'])
             ->orderBy('created_at', 'desc')->limit(100)->get();
         $domains = Geocode::select('domain', DB::raw('count(*) as total'))->groupBy('domain')->get();
         return Inertia::render('dashboard', [
