@@ -27,6 +27,11 @@ class ApiController extends Controller
 
         $region = $formatted_address = null;
 
+        // supported languages
+        if (!in_array($request->language, self::$languages)) {
+            $request->language = 'en';
+        }
+
         // bias results by region 
         $domain = parse_url($request->referrer, PHP_URL_HOST);
         $domain_parts = explode('.', $domain);

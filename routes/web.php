@@ -19,6 +19,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'domains' => $domains
         ]);
     })->name('dashboard');
+
+    Route::get('search', function () {
+        return Inertia::render('search');
+    });
 });
 
 Route::prefix('api')->group(function () {
