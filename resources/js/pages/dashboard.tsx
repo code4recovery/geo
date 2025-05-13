@@ -1,3 +1,5 @@
+import { ComponentProps } from 'react';
+
 import { Head } from '@inertiajs/react';
 
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
@@ -5,6 +7,8 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { UsageChart } from '@/components/usage-chart';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+
+import clsx from 'clsx';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -15,7 +19,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 type Geocode = {
     application: string;
-    created_at: string;
+    created_at_diff: string;
     domain: string;
     formatted_address: string | null;
     id: number;
@@ -29,14 +33,21 @@ type Domain = {
     total: number;
 };
 
-export default function Dashboard({ geocodes, domains }: { geocodes: Geocode[]; domains: Domain[] }) {
+export default function Dashboard({
+    geocodes,
+    domains,
+    chart_data,
+}: {
+    geocodes: Geocode[];
+    domains: Domain[];
+} & ComponentProps<typeof UsageChart>) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
                     <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <UsageChart />p
+                        <UsageChart chart_data={chart_data} />p
                     </div>
                     <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
                         <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
@@ -67,7 +78,7 @@ export default function Dashboard({ geocodes, domains }: { geocodes: Geocode[]; 
                 </div>
                 <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
                     <Table>
-                        <TableCaption>A list of recent geocodes.</TableCaption>
+                        <TableCaption>Last 100 geocodes</TableCaption>
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Referrer</TableHead>
@@ -81,7 +92,14 @@ export default function Dashboard({ geocodes, domains }: { geocodes: Geocode[]; 
                             {geocodes.map((geocode) => (
                                 <TableRow key={geocode.id}>
                                     <TableCell>
-                                        <span className="mr-2 rounded bg-indigo-500 px-2">{geocode.application}</span>
+                                        <span
+                                            className={clsx('mr-2 rounded px-2 py-1 font-mono text-xs font-bold uppercase', {
+                                                'bg-indigo-600': geocode.application === 'tsml-ui',
+                                                'bg-neutral-600': geocode.application === 'geo',
+                                            })}
+                                        >
+                                            {geocode.application}
+                                        </span>
                                         <a className="cursor-pointer hover:underline" href={geocode.referrer} target="_blank">
                                             {geocode.domain}
                                         </a>
@@ -89,7 +107,7 @@ export default function Dashboard({ geocodes, domains }: { geocodes: Geocode[]; 
                                     <TableCell>{geocode.language}</TableCell>
                                     <TableCell>{geocode.search}</TableCell>
                                     <TableCell>{geocode.formatted_address}</TableCell>
-                                    <TableCell className="text-right">{geocode.created_at}</TableCell>
+                                    <TableCell className="text-right">{geocode.created_at_diff}</TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
