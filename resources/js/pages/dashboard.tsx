@@ -1,6 +1,6 @@
 import { ComponentProps } from 'react';
 
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 
 import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -9,6 +9,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 
 import clsx from 'clsx';
+import { TrashIcon } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -41,6 +42,10 @@ export default function Dashboard({
     geocodes: Geocode[];
     domains: Domain[];
 } & ComponentProps<typeof UsageChart>) {
+    function deleteGeocode(id: number) {
+        router.post(`/geocodes/delete/${id}`);
+    }
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
@@ -86,6 +91,7 @@ export default function Dashboard({
                                 <TableHead>Search</TableHead>
                                 <TableHead>Formatted Address</TableHead>
                                 <TableHead className="text-right">Created At</TableHead>
+                                <TableHead></TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -108,6 +114,11 @@ export default function Dashboard({
                                     <TableCell>{geocode.search}</TableCell>
                                     <TableCell>{geocode.formatted_address}</TableCell>
                                     <TableCell className="text-right">{geocode.created_at_diff}</TableCell>
+                                    <TableCell className="w-2">
+                                        <button onClick={() => deleteGeocode(geocode.id)} className="cursor-pointer">
+                                            <TrashIcon />
+                                        </button>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>

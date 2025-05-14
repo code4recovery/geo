@@ -62,7 +62,7 @@ class ApiController extends Controller
         }
 
         $response = Http::get('https://maps.googleapis.com/maps/api/geocode/json?' . http_build_query([
-            'search' => $request->search,
+            'address' => $request->search,
             'key' => env('GOOGLE_API_KEY'),
             'language' => $request->language,
             'region' => $region,

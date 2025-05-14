@@ -39,6 +39,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('search', function () {
         return Inertia::render('search');
     });
+
+    Route::post('/geocodes/delete/{id}', function ($id) {
+        Geocode::find($id)->delete();
+    });
 });
 
 Route::prefix('api')->group(function () {
