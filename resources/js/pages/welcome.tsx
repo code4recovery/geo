@@ -1,15 +1,37 @@
 import { type SharedData } from '@/types';
 import { Head, Link, usePage } from '@inertiajs/react';
+import clsx from 'clsx';
+import { divIcon, Point } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer } from 'react-leaflet';
+import { SquareArrowOutUpRightIcon } from 'lucide-react';
+import { ComponentProps, useEffect, useState } from 'react';
+import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
+
+const buttonClass = 'rounded border hover:border-neutral-400 dark:border-neutral-700 px-4 py-2 dark:hover:border-neutral-500';
 
 export default function Welcome() {
     const { auth } = usePage<SharedData>().props;
+    const [location, setLocation] = useState<ComponentProps<typeof Location>>();
 
-    const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const data = new FormData(e.currentTarget);
-        console.log(data.get('search'));
+        const response = await fetch(
+            `/api/geocode?${new URLSearchParams({
+                search: `${data.get('search')}`,
+                application: 'geo',
+                referrer: window.location.href,
+            })}`,
+        );
+        const { results } = await response.json();
+        if (results) {
+            setLocation({
+                formatted_address: results[0].formatted_address,
+                location: results[0].geometry.location,
+            });
+        } else {
+            // todo handle error with toast
+        }
     };
 
     return (
@@ -19,15 +41,15 @@ export default function Welcome() {
                 <div className="flex w-1/4 flex-col justify-items-start gap-6 p-4">
                     <nav className="flex items-center justify-end gap-4">
                         {auth.user ? (
-                            <Link href={route('dashboard')} className="inline-block rounded border px-4 py-2 hover:border-neutral-500">
+                            <Link href={route('dashboard')} className={clsx('inline-block', buttonClass)}>
                                 Dashboard
                             </Link>
                         ) : (
                             <>
-                                <Link href={route('login')} className="inline-block rounded border px-4 py-2 hover:border-neutral-500">
+                                <Link href={route('login')} className={clsx('inline-block', buttonClass)}>
                                     Log in
                                 </Link>
-                                <Link href={route('register')} className="inline-block rounded border px-4 py-2 hover:border-neutral-500">
+                                <Link href={route('register')} className={clsx('inline-block', buttonClass)}>
                                     Register
                                 </Link>
                             </>
@@ -47,15 +69,28 @@ export default function Welcome() {
                         </a>
                         .
                     </p>
-                    <p>You will also be able to search for an address and get its coordinates.</p>
+                    <p>You can search for an address and get its coordinates.</p>
                     <form onSubmit={handleSearch}>
                         <input
                             type="search"
                             name="search"
-                            className="w-full rounded border bg-neutral-800 px-4 py-2"
+                            className="w-full rounded border bg-neutral-200 px-4 py-2 dark:bg-neutral-800 [&::-webkit-search-cancel-button]:hidden"
                             placeholder="Search for an address"
                         />
                     </form>
+                    {location && (
+                        <a
+                            className={clsx('flex gap-4', buttonClass)}
+                            target="_blank"
+                            href={`https://maps.google.com/?q=${Object.values(location.location).join()}`}
+                        >
+                            <SquareArrowOutUpRightIcon className="mt-1 size-5" />
+                            <div className="flex flex-col gap-2">
+                                <h1 className="font-bold">{location.formatted_address}</h1>
+                                <code className="font-mono text-sm">{Object.values(location.location).join(', ')}</code>
+                            </div>
+                        </a>
+                    )}
                 </div>
                 <div className="w-3/4 bg-cyan-500 dark:bg-cyan-800">
                     <MapContainer center={[0, 0]} zoom={2} style={{ height: '100%' }}>
@@ -63,9 +98,37 @@ export default function Welcome() {
                             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                             url="https://{s}s.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                         />
+                        {location && <Location {...location} />}
                     </MapContainer>
                 </div>
             </div>
         </>
     );
 }
+
+const Location = ({
+    formatted_address,
+    location,
+}: {
+    formatted_address: string;
+    location: {
+        lat: number;
+        lng: number;
+    };
+}) => {
+    const map = useMap();
+    useEffect(() => {
+        map.setView(location, 16);
+    }, [[formatted_address]]);
+    return (
+        <Marker
+            position={location}
+            icon={divIcon({
+                className: 'tsml-ui-marker',
+                html: `<svg viewBox="-1.1 -1.086 43.182 63.273" xmlns="http://www.w3.org/2000/svg"><path fill="#f76458" stroke="#b3382c" stroke-width="3" d="M20.5,0.5 c11.046,0,20,8.656,20,19.333c0,10.677-12.059,21.939-20,38.667c-5.619-14.433-20-27.989-20-38.667C0.5,9.156,9.454,0.5,20.5,0.5z"/></svg>`,
+                iconAnchor: [13, 19.2],
+                iconSize: new Point(26, 38.4),
+            })}
+        />
+    );
+};
