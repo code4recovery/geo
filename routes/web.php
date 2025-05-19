@@ -7,21 +7,33 @@ use App\Models\Geocode;
 use Carbon\Carbon;
 
 Route::get('/', function () {
-    return Inertia::render('welcome');
+    return Inertia::render('welcome', ['mapbox' => env('MAPBOX_ACCESS_TOKEN')]);
 })->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
-        $geocodes = Geocode::select(['id', 'search', 'formatted_address', 'language', 'domain', 'referrer', 'created_at', 'application'])
+        $geocodes = Geocode::select([
+            'id',
+            'search',
+            'formatted_address',
+            'language',
+            'domain',
+            'referrer',
+            'created_at',
+            'application'
+        ])
             ->orderBy('created_at', 'desc')->limit(100)->get()->map(function ($geocode) {
                 $geocode->created_at_diff = Carbon::parse($geocode->created_at)->diffForHumans();
                 return $geocode;
             });
         $domains = Geocode::select('domain', DB::raw('count(*) as total'))->groupBy('domain')->get();
-        $dates = Geocode::select(['created_at'])->where('created_at', '>', Carbon::now()->startOfMonth()->subMonths(5))
-            ->get()->map(function ($item) {
+        $dates = Geocode::select(['created_at'])
+            ->where('created_at', '>', Carbon::now()->startOfMonth()->subMonths(5))
+            ->get()
+            ->map(function ($item) {
                 return $item->created_at->format('M');
-            })->toArray();
+            })
+            ->toArray();
         $chart_data = array_map(function ($diff) use ($dates) {
             $month = Carbon::now()->startOfMonth()->subMonths($diff)->format('F');
             $geocodes = count(array_filter($dates, function ($date) use ($month) {

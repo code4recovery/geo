@@ -1,15 +1,20 @@
-import { type SharedData } from '@/types';
+import { ComponentProps, useEffect, useState } from 'react';
+
 import { Head, Link, usePage } from '@inertiajs/react';
 import clsx from 'clsx';
 import { divIcon, Point } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { SquareArrowOutUpRightIcon } from 'lucide-react';
-import { ComponentProps, useEffect, useState } from 'react';
 import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
+
+import { useDarkMode } from '@/hooks/use-dark-mode';
+import { type SharedData } from '@/types';
 
 const buttonClass = 'rounded border hover:border-neutral-400 dark:border-neutral-700 px-4 py-2 dark:hover:border-neutral-500';
 
-export default function Welcome() {
+export default function Welcome({ mapbox }: { mapbox: string }) {
+    const isDarkMode = useDarkMode();
+
     const { auth } = usePage<SharedData>().props;
     const [location, setLocation] = useState<ComponentProps<typeof Location>>();
 
@@ -38,7 +43,7 @@ export default function Welcome() {
         <>
             <Head title="Geo" />
             <div className="flex min-h-dvh flex-col md:flex-row-reverse">
-                <div className="flex w-1/4 flex-col justify-items-start gap-6 p-4">
+                <div className="flex w-1/4 flex-col justify-items-start gap-6 p-5 shadow-2xl">
                     <nav className="flex items-center justify-end gap-4">
                         {auth.user ? (
                             <Link href={route('dashboard')} className={clsx('inline-block', buttonClass)}>
@@ -92,11 +97,11 @@ export default function Welcome() {
                         </a>
                     )}
                 </div>
-                <div className="w-3/4 bg-cyan-500 dark:bg-cyan-800">
-                    <MapContainer center={[0, 0]} zoom={2} style={{ height: '100%' }}>
+                <div className="w-3/4">
+                    <MapContainer center={[0, 0]} zoom={2} minZoom={2} style={{ height: '100%' }}>
                         <TileLayer
-                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                            url="https://{s}s.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                            attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
+                            url={`https://api.mapbox.com/styles/v1/mapbox/${isDarkMode ? 'dark' : 'streets'}-v11/tiles/{z}/{x}/{y}?access_token=${mapbox}`}
                         />
                         {location && <Location {...location} />}
                     </MapContainer>
