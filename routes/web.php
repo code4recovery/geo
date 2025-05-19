@@ -26,7 +26,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 $geocode->created_at_diff = Carbon::parse($geocode->created_at)->diffForHumans();
                 return $geocode;
             });
-        $domains = Geocode::select('domain', DB::raw('count(*) as total'))->groupBy('domain')->get();
+        $domains = Geocode::select('domain', DB::raw('count(*) as total'))
+            ->groupBy('domain')
+            ->orderBy('total', 'desc')
+            ->get();
         $dates = Geocode::select(['created_at'])
             ->where('created_at', '>', Carbon::now()->startOfMonth()->subMonths(5))
             ->get()

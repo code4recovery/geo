@@ -43,7 +43,7 @@ export default function Welcome({ mapbox }: { mapbox: string }) {
         <>
             <Head title="Geo" />
             <div className="flex min-h-dvh flex-col md:flex-row-reverse">
-                <div className="flex w-1/4 flex-col justify-items-start gap-6 p-5 shadow-2xl">
+                <div className="flex flex-col justify-items-start gap-6 p-5 md:w-1/4 md:shadow-2xl">
                     <nav className="flex items-center justify-end gap-4">
                         {auth.user ? (
                             <Link href={route('dashboard')} className={clsx('inline-block', buttonClass)}>
@@ -97,8 +97,8 @@ export default function Welcome({ mapbox }: { mapbox: string }) {
                         </a>
                     )}
                 </div>
-                <div className="w-3/4">
-                    <MapContainer center={[0, 0]} zoom={2} minZoom={2} style={{ height: '100%' }}>
+                <div className="relative flex-grow md:w-3/4">
+                    <MapContainer center={[0, 0]} zoom={2} minZoom={2} style={{ bottom: 0, position: 'absolute', top: 0, width: '100%' }}>
                         <TileLayer
                             attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
                             url={`https://api.mapbox.com/styles/v1/mapbox/${isDarkMode ? 'dark' : 'streets'}-v11/tiles/{z}/{x}/{y}?access_token=${mapbox}`}
