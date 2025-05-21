@@ -39,6 +39,10 @@ class ApiController extends Controller
         if (in_array($tld, self::$countryTlds)) {
             $region = $tld;
         }
+        if ($domain_parts[0] === 'www') {
+            array_shift($domain_parts);
+            $domain = implode('.', $domain_parts);
+        }
 
         // check database
         $geocode = Geocode::where(function ($query) use ($request) {
