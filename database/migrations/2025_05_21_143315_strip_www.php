@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         DB::table('geocodes')
             ->where('domain', 'like', 'www.%')
-            ->update(['domain' => DB::raw('SUBSTRING(domain, 4)')]);
+            ->update(['domain' => DB::raw('SUBSTRING(domain, 5)')]);
     }
 
     /**
