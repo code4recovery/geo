@@ -38,7 +38,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
             })
             ->toArray();
         $chart_data = array_map(function ($diff) use ($dates) {
-            $month = Carbon::now()->startOfMonth()->subMonths($diff)->format('F');
+            $month = Carbon::now()->startOfMonth()->subMonths($diff)->format('M');
             $geocodes = count(array_filter($dates, function ($date) use ($month) {
                 return $date === $month;
             }));
