@@ -124,7 +124,7 @@ const Location = ({
     const map = useMap();
     useEffect(() => {
         map.setView(location, 16);
-    }, [[formatted_address]]);
+    }, [formatted_address, map, location]);
     return (
         <Marker
             position={location}

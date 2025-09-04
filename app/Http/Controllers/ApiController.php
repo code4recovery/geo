@@ -16,6 +16,10 @@ class ApiController extends Controller
             'language' => 'string',
             'referrer' => 'url|required',
             'search' => 'string|required',
+            'north' => 'numeric',
+            'south' => 'numeric',
+            'east' => 'numeric',
+            'west' => 'numeric',
         ]);
 
         if ($validator->fails()) {
@@ -50,6 +54,10 @@ class ApiController extends Controller
         })
             ->where('region', $region)
             ->where('language', $request->language)
+            ->where('north', $request->north)
+            ->where('south', $request->south)
+            ->where('east', $request->east)
+            ->where('west', $request->west)
             ->first();
 
         if ($geocode) {
@@ -60,6 +68,10 @@ class ApiController extends Controller
                     'language' => $request->language,
                     'referrer' => $request->referrer,
                     'region' => $region,
+                    'north' => $request->north ? (float) $request->north : null,
+                    'south' => $request->south ? (float) $request->south : null,
+                    'east' => $request->east ? (float) $request->east : null,
+                    'west' => $request->west ? (float) $request->west : null,
                 ],
                 ...$geocode->response,
             ];
@@ -70,6 +82,9 @@ class ApiController extends Controller
             'key' => env('GOOGLE_API_KEY'),
             'language' => $request->language,
             'region' => $region,
+            'bounds' => ($request->north && $request->south && $request->east && $request->west) ?
+                "$request->south,$request->west|$request->north,$request->east"
+                : null,
         ]))->json();
 
         if (is_array($response['results']) && count($response['results'])) {
@@ -85,6 +100,10 @@ class ApiController extends Controller
             'region' => $region,
             'response' => $response,
             'search' => $request->search,
+            'north' => $request->north,
+            'south' => $request->south,
+            'east' => $request->east,
+            'west' => $request->west,
         ]);
 
         return [
@@ -94,6 +113,10 @@ class ApiController extends Controller
                 'language' => $request->language,
                 'referrer' => $request->referrer,
                 'region' => $region,
+                'north' => $request->north,
+                'south' => $request->south,
+                'east' => $request->east,
+                'west' => $request->west,
             ],
             ...$response,
         ];

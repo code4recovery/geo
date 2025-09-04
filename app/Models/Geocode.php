@@ -15,6 +15,10 @@ class Geocode extends Model
         'region',
         'response',
         'search',
+        'north',
+        'south',
+        'east',
+        'west',
     ];
 
     protected $casts = [

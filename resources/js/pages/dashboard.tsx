@@ -27,6 +27,7 @@ type Geocode = {
     language: string;
     referrer: string;
     search: string;
+    bounds: boolean;
 };
 
 type Domain = {
@@ -88,6 +89,7 @@ export default function Dashboard({
                             <TableRow>
                                 <TableHead>Referrer</TableHead>
                                 <TableHead>Language</TableHead>
+                                <TableHead>Bounds</TableHead>
                                 <TableHead>Search</TableHead>
                                 <TableHead>Formatted Address</TableHead>
                                 <TableHead className="text-right">Created At</TableHead>
@@ -111,6 +113,7 @@ export default function Dashboard({
                                         </a>
                                     </TableCell>
                                     <TableCell>{geocode.language}</TableCell>
+                                    <TableCell className="text-center">{geocode.bounds ? '✅' : '❌'}</TableCell>
                                     <TableCell>{geocode.search}</TableCell>
                                     <TableCell>{geocode.formatted_address}</TableCell>
                                     <TableCell className="text-right">{geocode.created_at_diff}</TableCell>
