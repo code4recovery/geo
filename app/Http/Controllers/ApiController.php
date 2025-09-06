@@ -48,16 +48,19 @@ class ApiController extends Controller
             $domain = implode('.', $domain_parts);
         }
 
+        // allow 2 degrees (~222km) of variance in cache bounds
+        $tolerance = 2;
+
         // check database
         $geocode = Geocode::where(function ($query) use ($request) {
             return $query->where('search', $request->search)->orWhere('formatted_address', $request->search);
         })
             ->where('region', $region)
             ->where('language', $request->language)
-            ->where('north', $request->north)
-            ->where('south', $request->south)
-            ->where('east', $request->east)
-            ->where('west', $request->west)
+            ->whereBetween('north', [$request->north - $tolerance, $request->north + $tolerance])
+            ->whereBetween('south', [$request->south - $tolerance, $request->south + $tolerance])
+            ->whereBetween('east', [$request->east - $tolerance, $request->east + $tolerance])
+            ->whereBetween('west', [$request->west - $tolerance, $request->west + $tolerance])
             ->first();
 
         if ($geocode) {
