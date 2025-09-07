@@ -11,10 +11,48 @@
     .leaflet-container {
         background-color: var(--color-neutral-800) !important;
     }
+    .leaflet-control-attribution {
+        color: var(--color-neutral-400) !important;
+        background-color: var(--color-neutral-800) !important;
+        a {
+            color: var(--color-neutral-400) !important;
+        }
+    }
+    .leaflet-control-zoom {
+        background-color: var(--color-neutral-800) !important;
+        border-color: var(--color-neutral-700) !important;
+        box-shadow: none !important;
+        a {
+            background-color: var(--color-neutral-800) !important;
+            border-color: var(--color-neutral-950) !important;
+            color: var(--color-neutral-400) !important;
+            &:hover {
+                background-color: var(--color-neutral-600) !important;
+            }
+            &:active {
+                background-color: var(--color-neutral-700) !important;
+            }
+            &.leaflet-disabled {
+                background-color: var(--color-neutral-800) !important;
+                border-color: var(--color-neutral-700) !important;
+                color: var(--color-neutral-700) !important;
+                cursor: not-allowed !important;
+                box-shadow: none !important;
+            }
+        }
+    }
 }
 
 .leaflet-container:focus {
     outline: none;
+}
+
+.leaflet-control-zoom {
+    span {
+        display: flex;
+        justify-content: center;
+        line-height: 25px;
+    }
 }
 
 @theme {
