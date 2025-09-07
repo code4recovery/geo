@@ -16,10 +16,10 @@ class ApiController extends Controller
             'language' => 'string',
             'referrer' => 'url|required',
             'search' => 'string|required',
-            'north' => 'numeric',
-            'south' => 'numeric',
-            'east' => 'numeric',
-            'west' => 'numeric',
+            'north' => 'numeric|nullable',
+            'south' => 'numeric|nullable',
+            'east' => 'numeric|nullable',
+            'west' => 'numeric|nullable',
         ]);
 
         if ($validator->fails()) {
@@ -52,16 +52,19 @@ class ApiController extends Controller
         $tolerance = 2;
 
         // check database
-        $geocode = Geocode::where(function ($query) use ($request) {
-            return $query->where('search', $request->search)->orWhere('formatted_address', $request->search);
-        })
+        $query = Geocode::where(fn($query) => $query->where('search', $request->search)->orWhere('formatted_address', $request->search))
             ->where('region', $region)
-            ->where('language', $request->language)
-            ->whereBetween('north', [$request->north - $tolerance, $request->north + $tolerance])
-            ->whereBetween('south', [$request->south - $tolerance, $request->south + $tolerance])
-            ->whereBetween('east', [$request->east - $tolerance, $request->east + $tolerance])
-            ->whereBetween('west', [$request->west - $tolerance, $request->west + $tolerance])
-            ->first();
+            ->where('language', $request->language);
+
+        // only apply bounds if all four are provided
+        if ($request->north && $request->south && $request->east && $request->west) {
+            $query->whereBetween('north', [$request->north - $tolerance, $request->north + $tolerance])
+                ->whereBetween('south', [$request->south - $tolerance, $request->south + $tolerance])
+                ->whereBetween('east', [$request->east - $tolerance, $request->east + $tolerance])
+                ->whereBetween('west', [$request->west - $tolerance, $request->west + $tolerance]);
+        }
+
+        $geocode = $query->first();
 
         if ($geocode) {
             return [
