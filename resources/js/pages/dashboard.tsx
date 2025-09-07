@@ -104,6 +104,7 @@ export default function Dashboard({
                                             className={clsx('mr-2 rounded px-2 py-1 font-mono text-xs font-bold text-white uppercase', {
                                                 'bg-indigo-600': geocode.application === 'tsml-ui',
                                                 'bg-neutral-600': geocode.application === 'geo',
+                                                'bg-rose-600': geocode.application === 'tsml',
                                             })}
                                         >
                                             <span className="max-w-full truncate">{geocode.application}</span>
