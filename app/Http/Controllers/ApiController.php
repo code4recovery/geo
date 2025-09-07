@@ -16,6 +16,10 @@ class ApiController extends Controller
             'language' => 'string',
             'referrer' => 'url|required',
             'search' => 'string|required',
+            'north' => 'numeric|nullable',
+            'south' => 'numeric|nullable',
+            'east' => 'numeric|nullable',
+            'west' => 'numeric|nullable',
         ]);
 
         if ($validator->fails()) {
@@ -44,13 +48,23 @@ class ApiController extends Controller
             $domain = implode('.', $domain_parts);
         }
 
+        // allow 2 degrees (~222km) of variance in cache bounds
+        $tolerance = 2;
+
         // check database
-        $geocode = Geocode::where(function ($query) use ($request) {
-            return $query->where('search', $request->search)->orWhere('formatted_address', $request->search);
-        })
+        $query = Geocode::where(fn($query) => $query->where('search', $request->search)->orWhere('formatted_address', $request->search))
             ->where('region', $region)
-            ->where('language', $request->language)
-            ->first();
+            ->where('language', $request->language);
+
+        // only apply bounds if all four are provided
+        if ($request->north && $request->south && $request->east && $request->west) {
+            $query->whereBetween('north', [$request->north - $tolerance, $request->north + $tolerance])
+                ->whereBetween('south', [$request->south - $tolerance, $request->south + $tolerance])
+                ->whereBetween('east', [$request->east - $tolerance, $request->east + $tolerance])
+                ->whereBetween('west', [$request->west - $tolerance, $request->west + $tolerance]);
+        }
+
+        $geocode = $query->first();
 
         if ($geocode) {
             return [
@@ -60,6 +74,10 @@ class ApiController extends Controller
                     'language' => $request->language,
                     'referrer' => $request->referrer,
                     'region' => $region,
+                    'north' => $request->north ? (float) $request->north : null,
+                    'south' => $request->south ? (float) $request->south : null,
+                    'east' => $request->east ? (float) $request->east : null,
+                    'west' => $request->west ? (float) $request->west : null,
                 ],
                 ...$geocode->response,
             ];
@@ -70,6 +88,9 @@ class ApiController extends Controller
             'key' => env('GOOGLE_API_KEY'),
             'language' => $request->language,
             'region' => $region,
+            'bounds' => ($request->north && $request->south && $request->east && $request->west) ?
+                "$request->south,$request->west|$request->north,$request->east"
+                : null,
         ]))->json();
 
         if (is_array($response['results']) && count($response['results'])) {
@@ -85,6 +106,10 @@ class ApiController extends Controller
             'region' => $region,
             'response' => $response,
             'search' => $request->search,
+            'north' => $request->north,
+            'south' => $request->south,
+            'east' => $request->east,
+            'west' => $request->west,
         ]);
 
         return [
@@ -94,6 +119,10 @@ class ApiController extends Controller
                 'language' => $request->language,
                 'referrer' => $request->referrer,
                 'region' => $region,
+                'north' => $request->north,
+                'south' => $request->south,
+                'east' => $request->east,
+                'west' => $request->west,
             ],
             ...$response,
         ];

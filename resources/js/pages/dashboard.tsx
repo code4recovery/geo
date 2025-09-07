@@ -27,6 +27,7 @@ type Geocode = {
     language: string;
     referrer: string;
     search: string;
+    bounds: boolean;
 };
 
 type Domain = {
@@ -88,6 +89,7 @@ export default function Dashboard({
                             <TableRow>
                                 <TableHead>Referrer</TableHead>
                                 <TableHead>Language</TableHead>
+                                <TableHead>Bounds</TableHead>
                                 <TableHead>Search</TableHead>
                                 <TableHead>Formatted Address</TableHead>
                                 <TableHead className="text-right">Created At</TableHead>
@@ -97,22 +99,23 @@ export default function Dashboard({
                         <TableBody>
                             {geocodes.map((geocode) => (
                                 <TableRow key={geocode.id}>
-                                    <TableCell>
+                                    <TableCell className="max-w-[350px] items-center truncate">
                                         <span
-                                            className={clsx('mr-2 rounded px-2 py-1 font-mono text-xs font-bold uppercase', {
+                                            className={clsx('mr-2 rounded px-2 py-1 font-mono text-xs font-bold text-white uppercase', {
                                                 'bg-indigo-600': geocode.application === 'tsml-ui',
                                                 'bg-neutral-600': geocode.application === 'geo',
                                             })}
                                         >
-                                            {geocode.application}
+                                            <span className="max-w-full truncate">{geocode.application}</span>
                                         </span>
                                         <a className="cursor-pointer hover:underline" href={geocode.referrer} target="_blank">
                                             {geocode.domain}
                                         </a>
                                     </TableCell>
                                     <TableCell>{geocode.language}</TableCell>
-                                    <TableCell>{geocode.search}</TableCell>
-                                    <TableCell>{geocode.formatted_address}</TableCell>
+                                    <TableCell className="text-center">{geocode.bounds ? '✅' : '❌'}</TableCell>
+                                    <TableCell className="whitespace-normal">{geocode.search}</TableCell>
+                                    <TableCell className="whitespace-normal">{geocode.formatted_address}</TableCell>
                                     <TableCell className="text-right">{geocode.created_at_diff}</TableCell>
                                     <TableCell className="w-2">
                                         <button onClick={() => deleteGeocode(geocode.id)} className="cursor-pointer">

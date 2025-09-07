@@ -20,10 +20,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
             'domain',
             'referrer',
             'created_at',
-            'application'
+            'application',
+            'north',
+            'south',
+            'east',
+            'west',
         ])
             ->orderBy('created_at', 'desc')->limit(100)->get()->map(function ($geocode) {
                 $geocode->created_at_diff = Carbon::parse($geocode->created_at)->diffForHumans();
+                $geocode->bounds = $geocode->north && $geocode->south && $geocode->east && $geocode->west;
                 return $geocode;
             });
         $domains = Geocode::select('domain', DB::raw('count(*) as total'))
