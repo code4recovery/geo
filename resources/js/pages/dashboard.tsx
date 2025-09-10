@@ -2,7 +2,6 @@ import { ComponentProps } from 'react';
 
 import { Head, router } from '@inertiajs/react';
 
-import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { UsageChart } from '@/components/usage-chart';
 import AppLayout from '@/layouts/app-layout';
@@ -30,18 +29,26 @@ type Geocode = {
     bounds: boolean;
 };
 
+type Application = {
+    application: string;
+    total: number;
+};
+
 type Domain = {
     domain: string;
+    label: string;
     total: number;
 };
 
 export default function Dashboard({
-    geocodes,
-    domains,
+    applications,
     chart_data,
+    domains,
+    geocodes,
 }: {
-    geocodes: Geocode[];
+    applications: Application[];
     domains: Domain[];
+    geocodes: Geocode[];
 } & ComponentProps<typeof UsageChart>) {
     function deleteGeocode(id: number) {
         router.post(`/geocodes/delete/${id}`);
@@ -52,15 +59,32 @@ export default function Dashboard({
             <Head title="Dashboard" />
             <div className="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <UsageChart chart_data={chart_data} />p
+                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative grid grid-rows-[min-content] overflow-hidden rounded-xl border">
+                        <TableCaption>Total requests by month</TableCaption>
+                        <UsageChart chart_data={chart_data} />
                     </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
-                        <PlaceholderPattern className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" />
-                    </div>
-                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative aspect-video overflow-hidden rounded-xl border">
+                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border">
                         <Table>
-                            <TableCaption>Request counts by domain</TableCaption>
+                            <TableCaption>Monthly requests by application</TableCaption>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Application</TableHead>
+                                    <TableHead className="text-right">Total</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {applications.map(({ application, total }) => (
+                                    <TableRow key={application}>
+                                        <TableCell>{application}</TableCell>
+                                        <TableCell className="text-right">{total.toLocaleString()}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <div className="border-sidebar-border/70 dark:border-sidebar-border relative overflow-hidden rounded-xl border">
+                        <Table>
+                            <TableCaption>Monthly requests by domain</TableCaption>
                             <TableHeader>
                                 <TableRow>
                                     <TableHead>Domain</TableHead>
@@ -68,14 +92,14 @@ export default function Dashboard({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {domains.map(({ domain, total }) => (
+                                {domains.map(({ domain, label, total }) => (
                                     <TableRow key={domain}>
                                         <TableCell>
                                             <a className="cursor-pointer hover:underline" href={`https://${domain}/`} target="_blank">
-                                                {domain}
+                                                {label}
                                             </a>
                                         </TableCell>
-                                        <TableCell className="text-right">{total}</TableCell>
+                                        <TableCell className="text-right">{total.toLocaleString()}</TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

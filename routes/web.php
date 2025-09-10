@@ -31,9 +31,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 $geocode->bounds = $geocode->north && $geocode->south && $geocode->east && $geocode->west;
                 return $geocode;
             });
+
+        $decoded_domains = [
+            'meetingfinderstorage.z13.web.core.windows.net' => 'CA Meeting Finder App',
+        ];
+
         $domains = Geocode::select('domain', DB::raw('count(*) as total'))
+            ->where('created_at', '>', Carbon::now()->startOfMonth()->subMonths(1))
             ->groupBy('domain')
             ->orderBy('total', 'desc')
+            ->limit(10)
+            ->get()
+            ->map(function ($item) use ($decoded_domains) {
+                $item->label = $decoded_domains[$item->domain] ?? $item->domain;
+                return $item;
+            });
+        $applications = Geocode::select('application', DB::raw('count(*) as total'))
+            ->where('created_at', '>', Carbon::now()->startOfMonth()->subMonths(1))
+            ->groupBy('application')
+            ->orderBy('total', 'desc')
+            ->limit(10)
             ->get();
         $dates = Geocode::select(['created_at'])
             ->where('created_at', '>', Carbon::now()->startOfMonth()->subMonths(5))
@@ -50,9 +67,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
             return compact('month', 'geocodes');
         }, [5, 4, 3, 2, 1, 0]);
         return Inertia::render('dashboard', [
-            'geocodes' => $geocodes,
+            'applications' => $applications,
+            'chart_data' => $chart_data,
             'domains' => $domains,
-            'chart_data' => $chart_data
+            'geocodes' => $geocodes,
         ]);
     })->name('dashboard');
 
