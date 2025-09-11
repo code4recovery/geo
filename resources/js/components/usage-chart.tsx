@@ -17,7 +17,7 @@ type ChartData = {
 };
 
 export const UsageChart = ({ chart_data }: { chart_data: ChartData[] }) => (
-    <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
+    <ChartContainer config={chartConfig} className="h-full min-h-[200px] w-full">
         <BarChart accessibilityLayer data={chart_data}>
             <CartesianGrid vertical={false} />
             <XAxis dataKey="month" tickLine={false} tickMargin={10} axisLine={false} tickFormatter={(value) => value.slice(0, 3)} />

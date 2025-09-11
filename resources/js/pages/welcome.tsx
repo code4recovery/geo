@@ -1,8 +1,8 @@
-import { ComponentProps, useEffect, useState } from 'react';
+import { ComponentProps, useEffect, useRef, useState } from 'react';
 
 import { Head, Link, usePage } from '@inertiajs/react';
 import clsx from 'clsx';
-import { divIcon, Point } from 'leaflet';
+import { divIcon, type Map, Point } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { SquareArrowOutUpRightIcon } from 'lucide-react';
 import { MapContainer, Marker, TileLayer, useMap } from 'react-leaflet';
@@ -15,21 +15,30 @@ const buttonClass = 'rounded border hover:border-neutral-400 dark:border-neutral
 export default function Welcome({ mapbox }: { mapbox: string }) {
     const isDarkMode = useDarkMode();
 
+    const mapRef = useRef<Map>(null);
+
     const { auth } = usePage<SharedData>().props;
     const [location, setLocation] = useState<ComponentProps<typeof Location>>();
 
     const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const data = new FormData(e.currentTarget);
+
+        const [west, south, east, north] = mapRef.current?.getBounds().toBBoxString().split(',') || [];
+
         const response = await fetch(
             `/api/geocode?${new URLSearchParams({
                 search: `${data.get('search')}`,
                 application: 'geo',
                 referrer: window.location.href,
+                north,
+                south,
+                east,
+                west,
             })}`,
         );
         const { results } = await response.json();
-        if (results) {
+        if (results.length) {
             setLocation({
                 formatted_address: results[0].formatted_address,
                 location: results[0].geometry.location,
@@ -98,7 +107,13 @@ export default function Welcome({ mapbox }: { mapbox: string }) {
                     )}
                 </div>
                 <div className="relative flex-grow md:w-3/4">
-                    <MapContainer center={[0, 0]} zoom={2} minZoom={2} style={{ bottom: 0, position: 'absolute', top: 0, width: '100%' }}>
+                    <MapContainer
+                        center={[0, 0]}
+                        minZoom={2}
+                        ref={mapRef}
+                        style={{ bottom: 0, position: 'absolute', top: 0, width: '100%' }}
+                        zoom={2}
+                    >
                         <TileLayer
                             attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
                             url={`https://api.mapbox.com/styles/v1/mapbox/${isDarkMode ? 'dark' : 'streets'}-v11/tiles/{z}/{x}/{y}?access_token=${mapbox}`}
