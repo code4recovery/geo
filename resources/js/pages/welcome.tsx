@@ -116,7 +116,9 @@ export default function Welcome({ mapbox }: { mapbox: string }) {
                     >
                         <TileLayer
                             attribution='Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
+                            tileSize={512}
                             url={`https://api.mapbox.com/styles/v1/mapbox/${isDarkMode ? 'dark' : 'streets'}-v11/tiles/{z}/{x}/{y}?access_token=${mapbox}`}
+                            zoomOffset={-1}
                         />
                         {location && <Location {...location} />}
                     </MapContainer>
