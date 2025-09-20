@@ -8,7 +8,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 
 import clsx from 'clsx';
-import { TrashIcon } from 'lucide-react';
+import { GlobeIcon, TrashIcon } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -111,9 +111,10 @@ export default function Dashboard({
                         <TableCaption>Last 100 geocodes</TableCaption>
                         <TableHeader>
                             <TableRow>
+                                <TableHead className="flex items-center justify-center">
+                                    <GlobeIcon strokeWidth={1} width={20} />
+                                </TableHead>
                                 <TableHead>Referrer</TableHead>
-                                <TableHead>Language</TableHead>
-                                <TableHead>Bounds</TableHead>
                                 <TableHead>Search</TableHead>
                                 <TableHead>Formatted Address</TableHead>
                                 <TableHead className="text-right">Created At</TableHead>
@@ -123,6 +124,14 @@ export default function Dashboard({
                         <TableBody>
                             {geocodes.map((geocode) => (
                                 <TableRow key={geocode.id}>
+                                    <TableCell
+                                        className={clsx('text-center font-mono text-xs uppercase', {
+                                            'text-neutral-400 dark:text-neutral-400': geocode.language === 'en',
+                                            'font-bold': geocode.language !== 'en',
+                                        })}
+                                    >
+                                        {geocode.language}
+                                    </TableCell>
                                     <TableCell className="max-w-[350px] items-center truncate">
                                         <span
                                             className={clsx('mr-2 rounded px-2 py-1 font-mono text-xs font-bold text-white uppercase', {
@@ -137,14 +146,15 @@ export default function Dashboard({
                                             {geocode.domain}
                                         </a>
                                     </TableCell>
-                                    <TableCell>{geocode.language}</TableCell>
-                                    <TableCell className="text-center">{geocode.bounds ? '✅' : '❌'}</TableCell>
                                     <TableCell className="whitespace-normal">{geocode.search}</TableCell>
                                     <TableCell className="whitespace-normal">{geocode.formatted_address}</TableCell>
                                     <TableCell className="text-right">{geocode.created_at_diff}</TableCell>
-                                    <TableCell className="w-2">
-                                        <button onClick={() => deleteGeocode(geocode.id)} className="cursor-pointer">
-                                            <TrashIcon />
+                                    <TableCell className="flex items-center justify-center">
+                                        <button
+                                            onClick={() => deleteGeocode(geocode.id)}
+                                            className="cursor-pointer rounded p-2 hover:bg-white dark:hover:bg-black"
+                                        >
+                                            <TrashIcon strokeWidth={1} size={20} />
                                         </button>
                                     </TableCell>
                                 </TableRow>
