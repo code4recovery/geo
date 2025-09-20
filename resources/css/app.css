@@ -7,6 +7,19 @@
 
 @custom-variant dark (&:is(.dark *));
 
+[class^='application-'] {
+    @apply mr-2 rounded border px-2 py-1 font-mono text-xs font-bold text-white uppercase;
+    &[class$='geo'] {
+        @apply bg-neutral-600;
+    }
+    &[class$='tsml'] {
+        @apply bg-rose-600;
+    }
+    &[class$='tsml-ui'] {
+        @apply bg-indigo-600;
+    }
+}
+
 @media (prefers-color-scheme: dark) {
     .leaflet-container {
         background-color: var(--color-neutral-800) !important;

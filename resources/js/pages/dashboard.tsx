@@ -75,7 +75,9 @@ export default function Dashboard({
                             <TableBody>
                                 {applications.map(({ application, total }) => (
                                     <TableRow key={application}>
-                                        <TableCell>{application}</TableCell>
+                                        <TableCell>
+                                            <span className={`application-${application}`}>{application}</span>
+                                        </TableCell>
                                         <TableCell className="text-right">{total.toLocaleString()}</TableCell>
                                     </TableRow>
                                 ))}
@@ -133,13 +135,7 @@ export default function Dashboard({
                                         {geocode.language}
                                     </TableCell>
                                     <TableCell className="max-w-[350px] items-center truncate">
-                                        <span
-                                            className={clsx('mr-2 rounded px-2 py-1 font-mono text-xs font-bold text-white uppercase', {
-                                                'bg-indigo-600': geocode.application === 'tsml-ui',
-                                                'bg-neutral-600': geocode.application === 'geo',
-                                                'bg-rose-600': geocode.application === 'tsml',
-                                            })}
-                                        >
+                                        <span className={`application-${geocode.application}`}>
                                             <span className="max-w-full truncate">{geocode.application}</span>
                                         </span>
                                         <a className="cursor-pointer hover:underline" href={geocode.referrer} target="_blank">
